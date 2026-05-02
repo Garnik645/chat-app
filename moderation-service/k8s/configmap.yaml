@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: moderation-config
+  namespace: chat-app
+data:
+  TOXICITY_THRESHOLD: "0.8"
+  SEXUAL_EXPLICIT_THRESHOLD: "0.8"

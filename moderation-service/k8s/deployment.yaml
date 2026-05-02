@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moderation-service
+  namespace: chat-app
+  labels:
+    app: moderation-service
+spec:
+  replicas: 2   # minimum — HPA manages the upper bound
+  selector:
+    matchLabels:
+      app: moderation-service
+  template:
+    metadata:
+      labels:
+        app: moderation-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: moderation-service
+          image: moderation-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: PERSPECTIVE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: moderation-secrets
+                  key: PERSPECTIVE_API_KEY
+            - name: TOXICITY_THRESHOLD
+              valueFrom:
+                configMapKeyRef:
+                  name: moderation-config
+                  key: TOXICITY_THRESHOLD
+            - name: SEXUAL_EXPLICIT_THRESHOLD
+              valueFrom:
+                configMapKeyRef:
+                  name: moderation-config
+                  key: SEXUAL_EXPLICIT_THRESHOLD
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 90   # allow model download/load
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 90
+            periodSeconds: 15
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "3Gi"
+      # Allow model weights to be cached on the node's writable layer
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
