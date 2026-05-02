@@ -114,7 +114,7 @@ public class RoomService {
     public void removeMember(UUID roomId, UUID requestingUserId, UUID targetUserId) {
         Room room = findRoomOrThrow(roomId);
 
-        if (!room.getCreatedBy().equals(requestingUserId)) {
+        if (!room.getCreatedBy().equals(requestingUserId) && !targetUserId.equals(requestingUserId)) {
             throw new ForbiddenException("Only the room admin can remove members");
         }
 

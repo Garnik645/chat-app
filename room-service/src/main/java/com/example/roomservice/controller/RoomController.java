@@ -95,6 +95,17 @@ public class RoomController {
     }
 
     /**
+     * DELETE /api/rooms/{roomId}/members — Leave a room.
+     */
+    @DeleteMapping("/{roomId}/members")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeMember(
+            @PathVariable UUID roomId,
+            @RequestHeader("X-User-Id") UUID requestingUserId) {
+        roomService.removeMember(roomId, requestingUserId, requestingUserId);
+    }
+
+    /**
      * GET /api/rooms/{roomId}/members — Paginated list of room members.
      */
     @GetMapping("/{roomId}/members")
