@@ -17,7 +17,9 @@ The system is composed of six services:
 
 Messages flow through Kafka: the Chat Service publishes every message, the Moderation Service consumes and scores it, then publishes a verdict back. Rejected messages are removed from all connected clients automatically.
 
-## Environment Setup
+## Docker Compose
+
+### Environment Setup
 
 Create a `.env` file at the monorepo root:
 
@@ -27,9 +29,7 @@ DB_PASSWORD=postgres
 JWT_SECRET=your-long-random-secret-here
 ```
 
-## Run
-
-Start the entire system with a single command from the monorepo root:
+### Run
 
 ```bash
 docker compose up --build
@@ -43,10 +43,56 @@ The `--build` flag rebuilds all images before starting. Once everything is up:
 | `http://localhost:8080` | API Gateway |
 | `http://localhost:3000` | Grafana |
 
-## Stop
+### Stop
 
-Shut down and **delete all data** (fresh start next time):
+Shut down containers but keep all data:
+
+```bash
+docker compose down
+```
+
+Shut down and delete all data (fresh start next time):
 
 ```bash
 docker compose down -v
+```
+
+## Kubernetes (Minikube)
+
+### Environment Setup
+
+Generate the secrets file by running the helper script from the monorepo root:
+
+```bash
+./k8s/secrets/generate-secrets.sh
+```
+
+It will prompt for `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET` and write a ready-to-apply `k8s/secrets/app-secrets.yaml`.
+
+### Run
+
+Start Minikube if it is not already running:
+
+```bash
+minikube start
+```
+
+Then deploy the full stack:
+
+```bash
+./k8s/deploy.sh
+```
+
+### Teardown
+
+Delete all Kubernetes resources but keep Minikube running:
+
+```bash
+./k8s/teardown.sh
+```
+
+Stop and delete Minikube along with all data:
+
+```bash
+minikube delete
 ```
