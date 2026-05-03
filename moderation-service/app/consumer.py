@@ -87,17 +87,27 @@ async def start_consumer() -> None:
         bootstrap_servers=settings.kafka_bootstrap_servers,
     )
 
-    for attempt in range(1, 11):
+    # Retry connecting to Kafka — it may not be ready when this pod starts
+    max_attempts = 20
+    retry_delay = 5  # seconds
+    for attempt in range(1, max_attempts + 1):
         try:
             await _consumer.start()
             await _producer.start()
-            logger.info("Kafka consumer started. Listening on topic '%s'", settings.kafka_input_topic)
+            logger.info(
+                "Kafka consumer started. Listening on topic '%s'", settings.kafka_input_topic
+            )
             break
         except Exception as exc:
-            logger.warning("Kafka not ready (attempt %d/10): %s — retrying in 5s", attempt, exc)
-            await asyncio.sleep(5)
+            logger.warning(
+                "Kafka not ready (attempt %d/%d): %s — retrying in %ds",
+                attempt, max_attempts, exc, retry_delay,
+            )
+            await asyncio.sleep(retry_delay)
     else:
-        logger.error("Could not connect to Kafka after 10 attempts. Consumer will not run.")
+        logger.error(
+            "Could not connect to Kafka after %d attempts. Consumer will not run.", max_attempts
+        )
         return
 
     try:
