@@ -41,6 +41,7 @@ The `--build` flag rebuilds all images before starting. Once everything is up:
 |---|---|
 | `http://localhost:80` | Frontend UI |
 | `http://localhost:8080` | API Gateway |
+| `http://localhost:3000` | Grafana |
 
 ## Stop
 
