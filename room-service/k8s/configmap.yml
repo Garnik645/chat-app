@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: room-service-config
-  namespace: chat-app
-data:
-  # Point at the rooms-db Service (ClusterIP) inside the cluster.
-  # Replace "rooms-db" with the actual PostgreSQL Service name if different.
-  DB_URL: "jdbc:postgresql://rooms-db:5432/rooms"

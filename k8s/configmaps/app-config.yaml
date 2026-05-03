@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: chat-app
+data:
+  # Database
+  USER_DB_URL:   "jdbc:postgresql://user-db:5432/userdb"
+  ROOMS_DB_URL:  "jdbc:postgresql://rooms-db:5432/rooms"
+  CHAT_DB_URL:   "jdbc:postgresql://chat-db:5432/chatdb"
+
+  # Kafka
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+
+  # Inter-service URLs
+  USER_SERVICE_URL: "http://user-service:8081"
+  ROOM_SERVICE_URL: "http://room-service:8082"
+  CHAT_SERVICE_URL: "http://chat-service:8083"
+
+  # Moderation thresholds
+  TOXICITY_THRESHOLD:        "0.8"
+  SEXUAL_EXPLICIT_THRESHOLD: "0.8"
+
+  # JWT expiration (24h)
+  JWT_EXPIRATION_MS: "86400000"

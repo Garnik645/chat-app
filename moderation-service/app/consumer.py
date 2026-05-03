@@ -87,11 +87,18 @@ async def start_consumer() -> None:
         bootstrap_servers=settings.kafka_bootstrap_servers,
     )
 
-    await _consumer.start()
-    await _producer.start()
-    logger.info(
-        "Kafka consumer started. Listening on topic '%s'", settings.kafka_input_topic
-    )
+    for attempt in range(1, 11):
+        try:
+            await _consumer.start()
+            await _producer.start()
+            logger.info("Kafka consumer started. Listening on topic '%s'", settings.kafka_input_topic)
+            break
+        except Exception as exc:
+            logger.warning("Kafka not ready (attempt %d/10): %s — retrying in 5s", attempt, exc)
+            await asyncio.sleep(5)
+    else:
+        logger.error("Could not connect to Kafka after 10 attempts. Consumer will not run.")
+        return
 
     try:
         async for msg in _consumer:

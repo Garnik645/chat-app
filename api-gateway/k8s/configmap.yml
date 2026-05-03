@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: service-urls
-  namespace: chat-app
-data:
-  user-service-url: "http://user-service:8081"
-  room-service-url: "http://room-service:8082"
-  chat-service-url: "http://chat-service:8083"
